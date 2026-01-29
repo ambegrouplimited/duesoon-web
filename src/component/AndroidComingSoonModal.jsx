@@ -23,7 +23,7 @@ export default function AndroidComingSoonModal({ isOpen, onClose }) {
           We&apos;re polishing the Android experience right now. Check back shortly and we&apos;ll have it ready
           for you.
         </p>
-        <Button onClick={onClose} className="mt-6 w-full !bg-white !text-black hover:opacity-90">
+        <Button onClick={onClose} className="mt-6 w-full bg-white! text-black! hover:opacity-90">
           Back to site
         </Button>
       </div>

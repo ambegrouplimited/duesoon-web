@@ -16,7 +16,7 @@ export default function Download() {
         <div className="relative z-10 h-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-40 px-4 sm:px-8 md:px-12 py-6">
           
           {/* Left: App Screenshots */}
-          <div className="relative  hidden sm:flex justify-center lg:justify-start">
+          <div className="relative  hidden md:flex justify-center lg:justify-start">
             <div className="relative -top-35 -left-45 z-20 rotate-[-13.1deg]">
               <img src={delivery} alt="" srcset="" className="max-w-150 lg:max-w-187.5 xl:max-w-225 h-auto object-contain"/>
             </div>
@@ -39,7 +39,7 @@ export default function Download() {
             </p>
 
             {/* Store Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 mt-8 ">
+            <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8 ">
                       <Button className='flex gap-4 items-center border border-white/15 w-full sm:w-56 lg:w-57.25 h-fit justify-center sm:justify-start'>
                           <FaApple className='h-8 w-8'/>
                           <div className='text-left text-sm sm:text-[22px] font-medium'>
@@ -58,7 +58,7 @@ export default function Download() {
                           Google Play 
                           </div>
                       </Button>
-                  </div>
+              </div>
           </div>
         </div>
         <div className="absolute inset-0 bg-linear-to-br from-white/5 via-transparent to-transparent pointer-events-none" />

@@ -35,7 +35,7 @@ export default function Navbar() {
 
   return (
     <header className=" section shadow-md fixed top-0 w-full z-50 inset-x-0 bg-white/45 backdrop-blur-lg px-10">
-      <div className="section flex items-center justify-between h-24 mx-6">
+      <div className="flex items-center justify-between h-24 mx-6">
         {/* Logo */}
         <Link to="/"><img src={duesoon} alt="DueSoon" className="h-8 w-auto relative right-10" /></Link>
         

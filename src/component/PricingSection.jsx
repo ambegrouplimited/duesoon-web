@@ -18,7 +18,7 @@ export default function PricingSection() {
         Start getting paid faster today.
       </h1>
 
-      <div className="mt-12 mx-4 md:mx-auto max-w-5xl grid gap-8 sm:gap-0 lg:grid-cols-2">
+      <div className="mt-12 mx-4 md:mx-auto max-w-5xl grid gap-8 md:gap-0 lg:grid-cols-2">
         {/* Price card */}
         <div className="rounded-3xl md:rounded-none md:rounded-l-3xl bg-black flex text-left flex-col justify-center text-white p-10">
           <p className="text-2xl sm:text-7xl font-bold">

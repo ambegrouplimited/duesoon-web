@@ -17,8 +17,8 @@ export default function Footer() {
   };
 
   return (
-    <footer className="section border-t relative z-20">
-      <div className="max-w-6xl mx-auto px-6 py-16 grid gap-12 md:grid-cols-4">
+    <footer className="section border-t relative z-20 ">
+      <div className="max-w-6xl mx-10 md:mx-auto px-6 py-16 grid grid-cols-2 gap-12 md:grid-cols-4">
         {/* Brand */}
         <div className='max-w-xs'>
           

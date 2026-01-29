@@ -14,6 +14,16 @@
 @theme{
   --font-display: "Instrument Sans", sans-serif;
   --color-muted: #696969;
+
+  /* breakpoints */
+  --breakpoint-xs: 360px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 885px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+
+  
+  --breakpoint-tablet: 900px;
 }
 
 
