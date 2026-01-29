@@ -1,4 +1,4 @@
-import Problems from "../component/problems";
+import Problems from "../component/Problems";
 import Solutions from "../component/Solutions";
 
 export default function WhyChooseUs() {
