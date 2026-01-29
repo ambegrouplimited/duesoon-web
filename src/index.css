@@ -17,8 +17,20 @@
 }
 
 
+html {
+  width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   @apply bg-white text-gray-900 antialiased font-display;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+#root {
+  width: 100%;
+  overflow-x: hidden;
 }
 
 
