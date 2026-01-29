@@ -11,7 +11,7 @@ export default function ReviewsSection() {
       5000
     );
     return () => clearInterval(timer);
-  }, []);
+  }, [index]);
 
   return (
     <section className="section py-24 text-center overflow-hidden px-4 sm:px-8">

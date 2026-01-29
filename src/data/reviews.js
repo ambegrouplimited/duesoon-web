@@ -26,4 +26,36 @@ export const reviews = [
     role: "Graphic Designer",
     image: Maya,
   },
+  {
+    id: 4,
+    quote:
+      "The flexibility to choose my tone is perfect. It’s professional without being pushy, and clients appreciate it.",
+    name: "John Ross",
+    role: "Graphic Designer",
+    image: Maya,
+  },
+  {
+    id: 5,
+    quote:
+      "The flexibility to choose my tone is perfect. It’s professional without being pushy, and clients appreciate it.",
+    name: "John Ross",
+    role: "Graphic Designer",
+    image: Maya,
+  },
+  {
+    id: 6,
+    quote:
+      "The flexibility to choose my tone is perfect. It’s professional without being pushy, and clients appreciate it.",
+    name: "John Ross",
+    role: "Graphic Designer",
+    image: Maya,
+  },
+  {
+    id: 7,
+    quote:
+      "The flexibility to choose my tone is perfect. It’s professional without being pushy, and clients appreciate it.",
+    name: "John Ross",
+    role: "Graphic Designer",
+    image: Maya,
+  },
 ];
