@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap');
+@import "tailwindcss";
+
+
+
+:root {
+  --primary: #000000;
+
+  --bg-dark: #0b0b0b;
+  --bg-card: #111111;
+  --text-muted: #6b7280;
+ 
+}
+@theme{
+  --font-display: "Instrument Sans", sans-serif;
+  --color-muted: #696969;
+}
+
+
+body {
+  @apply bg-white text-gray-900 antialiased font-display;
+}
+
+
+.section {
+  @apply max-w-dvw ;
+}
+
+.card {
+  @apply bg-white border border-gray-200 rounded-2xl p-6;
+}
+
+.dark-card {
+  @apply bg-(--bg-dark) text-white rounded-3xl p-10;
+}
+
+.muted {
+  @apply text-gray-500;
+}
+
+.btn-primary {
+  @apply bg-[#1e1e1e] text-white px-6 py-3 rounded-xl font-medium hover:bg-gray-800 transition;
+}
+
+
+.h1 {
+  @apply  font-bold ;
+}
+
+.h2 {
+  @apply text-3xl md:text-4xl font-semibold;
+}
+
+.h3 {
+  @apply text-xl font-semibold;
+}
+
+
+.text-stroke-white {
+  -webkit-text-stroke:2px rgba(255,255,255,100);
+  color: transparent; 
+}
