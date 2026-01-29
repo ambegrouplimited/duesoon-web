@@ -42,7 +42,7 @@ export default function Hero() {
           DueSoon automatically reminds your clients to pay you on time, so you can focus on what matters most.
         </p>
 
-        <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8 w-full sm:w-auto">
+        <div className="flex flex-col sm:flex-row justify-center sm:justify-start just gap-4 mt-8 w-full sm:w-auto">
             <Button className='flex gap-4 items-center w-full sm:w-54 lg:w-60 h-fit'>
                 <FaApple className='h-8 w-8'/>
                 <div className='text-left text-xl sm:text-2xl font-medium'>

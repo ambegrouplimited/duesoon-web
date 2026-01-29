@@ -39,7 +39,7 @@ export default function Download() {
             </p>
 
             {/* Store Buttons */}
-            <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8 ">
+            <div className="flex flex-col sm:flex-row justify-center sm:justify-start gap-4 mt-8 ">
                       <Button className='flex gap-4 items-center border border-white/15 w-full sm:w-56 lg:w-57.25 h-fit justify-center sm:justify-start'>
                           <FaApple className='h-8 w-8'/>
                           <div className='text-left text-sm sm:text-[22px] font-medium'>
