@@ -7,8 +7,8 @@ import contact from '../assets/contact.png'
 export default function HowItWorks() {
   return (
     <section className="section py-24 ">
-      <div className="max-w-max mx-6 md:mx-auto">
-        <div className="relative mb-45 rounded-3xl flex flex-col mx-6 sm:mx-auto bg-linear-to-br from-black via-[#4c4a4a] to-black text-white h-170 p-10 md:p-16 shadow-2xl">
+      <div className="max-w-max mx-auto">
+        <div className="relative mb-45 rounded-3xl h-fit flex flex-col mx-6 sm:mx-auto bg-linear-to-br from-black via-[#4c4a4a] to-black text-white md:h-170 p-10 md:p-16 shadow-2xl">
           {/* Header */}
           <p className="text-sm text-gray-300">
             Three simple steps to get paid.

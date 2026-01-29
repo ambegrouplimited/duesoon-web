@@ -62,7 +62,7 @@ export default function Navbar() {
 
         {/* Mobile Menu Button */}
         <button
-          onClick={() => setOpen(!open)} className="lg:hidden text-2xl cursor-pointer"  aria-label="Toggle menu"> {open ? <IoClose /> : <IoMenuOutline />}
+          onClick={() => setOpen(!open)} className="lg:hidden left-9 relative text-2xl cursor-pointer"  aria-label="Toggle menu"> {open ? <IoClose /> : <IoMenuOutline />}
         </button>
       </div>
 
