@@ -1,5 +1,6 @@
 import Maya from "../assets/Avatar.png";
-import James from "../assets/Avatar.png";
+import James from "../assets/james_rodriguez.avif";
+import Victoria from "../assets/victoria_blinks.avif";
 
 export const reviews = [
   {
@@ -22,40 +23,8 @@ export const reviews = [
     id: 3,
     quote:
       "The flexibility to choose my tone is perfect. It’s professional without being pushy, and clients appreciate it.",
-    name: "John Ross",
+    name: "Victoria Blinks",
     role: "Graphic Designer",
-    image: Maya,
-  },
-  {
-    id: 4,
-    quote:
-      "The flexibility to choose my tone is perfect. It’s professional without being pushy, and clients appreciate it.",
-    name: "John Ross",
-    role: "Graphic Designer",
-    image: Maya,
-  },
-  {
-    id: 5,
-    quote:
-      "The flexibility to choose my tone is perfect. It’s professional without being pushy, and clients appreciate it.",
-    name: "John Ross",
-    role: "Graphic Designer",
-    image: Maya,
-  },
-  {
-    id: 6,
-    quote:
-      "The flexibility to choose my tone is perfect. It’s professional without being pushy, and clients appreciate it.",
-    name: "John Ross",
-    role: "Graphic Designer",
-    image: Maya,
-  },
-  {
-    id: 7,
-    quote:
-      "The flexibility to choose my tone is perfect. It’s professional without being pushy, and clients appreciate it.",
-    name: "John Ross",
-    role: "Graphic Designer",
-    image: Maya,
+    image: Victoria,
   },
 ];
