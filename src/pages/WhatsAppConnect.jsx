@@ -96,6 +96,11 @@ export default function WhatsAppConnect() {
     searchParams.get("return_uri") ??
     FALLBACK_REDIRECT;
 
+  const logDebug = (...args) => {
+    // eslint-disable-next-line no-console
+    console.log("[WhatsAppConnect]", ...args);
+  };
+
   const finalizeSuccess = useCallback(() => {
     if (completedRef.current) return;
     completedRef.current = true;
@@ -161,14 +166,24 @@ export default function WhatsAppConnect() {
   );
 
   const attemptFinalize = useCallback(() => {
-    if (
-      resultRef.current &&
-      FINISH_EVENTS.has(resultRef.current.event) &&
-      codeRef.current
-    ) {
-      setStatus("Wrapping up…");
-      finalizeSuccess();
+    if (completedRef.current) return;
+    const payload = resultRef.current;
+    const code = codeRef.current;
+    if (!payload) {
+      logDebug("Waiting for WA_EMBEDDED_SIGNUP payload…");
+      return;
     }
+    if (!code) {
+      logDebug("Waiting for authResponse code…");
+      return;
+    }
+    if (!FINISH_EVENTS.has(payload.event)) {
+      logDebug("Received payload but event is not FINISH yet:", payload.event);
+      return;
+    }
+    logDebug("Finalizing WhatsApp signup with payload", payload);
+    setStatus("Wrapping up…");
+    finalizeSuccess();
   }, [finalizeSuccess]);
 
   const handleMessageEvent = useCallback(
@@ -185,6 +200,7 @@ export default function WhatsAppConnect() {
       if (!payload || payload.type !== "WA_EMBEDDED_SIGNUP") {
         return;
       }
+      logDebug("Received WA_EMBEDDED_SIGNUP event", payload);
       resultRef.current = payload;
       if (payload.event === "CANCEL" || payload.event === "ERROR") {
         setStatus("WhatsApp signup was canceled.");
@@ -207,10 +223,12 @@ export default function WhatsAppConnect() {
   const fbLoginCallback = useCallback(
     (response) => {
       if (response?.authResponse?.code) {
+        logDebug("Received authResponse code");
         codeRef.current = response.authResponse.code;
         setStatus("Received Meta authorization code.");
         attemptFinalize();
       } else if (!completedRef.current) {
+        logDebug("authResponse missing code", response);
         setError("Facebook login failed or was canceled.");
         setStatus("Unable to continue WhatsApp signup.");
       }
