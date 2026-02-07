@@ -5,6 +5,7 @@ import Contact from './pages/Contact';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import ClientPayment from './pages/ClientPayment';
+import WhatsAppConnect from './pages/WhatsAppConnect';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -26,6 +27,7 @@ function App() {
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/pay" element={<ClientPayment />} />
+        <Route path="/whatsapp/connect" element={<WhatsAppConnect />} />
       </Routes>
     </Router>
   );
