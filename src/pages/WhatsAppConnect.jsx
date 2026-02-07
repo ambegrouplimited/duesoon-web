@@ -11,7 +11,7 @@ const FINISH_EVENTS = new Set([
   "FINISH_ONLY_WABA",
   "FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING",
 ]);
-const TRUSTED_FACEBOOK_HOSTS = ["facebook.com", "fb.com"];
+const TRUSTED_FACEBOOK_HOSTS = ["facebook.com", "fb.com", "facebook.net", "fbcdn.net", "whatsapp.com"];
 
 const isTrustedFacebookOrigin = (origin) => {
   try {
