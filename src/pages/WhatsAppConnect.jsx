@@ -11,18 +11,6 @@ const FINISH_EVENTS = new Set([
   "FINISH_ONLY_WABA",
   "FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING",
 ]);
-const TRUSTED_FACEBOOK_HOSTS = ["facebook.com", "fb.com", "facebook.net", "fbcdn.net", "whatsapp.com"];
-
-const isTrustedFacebookOrigin = (origin) => {
-  try {
-    const parsed = new URL(origin);
-    return TRUSTED_FACEBOOK_HOSTS.some((host) =>
-      parsed.hostname === host || parsed.hostname.endsWith(`.${host}`)
-    );
-  } catch {
-    return false;
-  }
-};
 
 const loadFacebookSdk = () =>
   new Promise((resolve, reject) => {
@@ -216,10 +204,7 @@ export default function WhatsAppConnect() {
 
   const handleMessageEvent = useCallback(
     (event) => {
-      if (!isTrustedFacebookOrigin(event.origin)) {
-        logDebug("Ignoring message from", event.origin);
-        return;
-      }
+      logDebug("message event from", event.origin);
       let payload = event.data;
       if (typeof payload === "string") {
         try {
