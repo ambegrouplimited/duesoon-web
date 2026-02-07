@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 const APP_ID = import.meta.env.VITE_WHATSAPP_APP_ID;
 const CONFIG_ID = import.meta.env.VITE_WHATSAPP_CONFIG_ID;
 const GRAPH_VERSION = import.meta.env.VITE_WHATSAPP_GRAPH_VERSION ?? "v24.0";
+const SESSION_INFO_VERSION = import.meta.env.VITE_WHATSAPP_SESSION_VERSION ?? "3";
 const FALLBACK_REDIRECT = import.meta.env.VITE_WHATSAPP_FALLBACK_REDIRECT ?? "";
 const SDK_SRC = "https://connect.facebook.net/en_US/sdk.js";
 const FINISH_EVENTS = new Set([
@@ -10,6 +11,18 @@ const FINISH_EVENTS = new Set([
   "FINISH_ONLY_WABA",
   "FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING",
 ]);
+const TRUSTED_FACEBOOK_HOSTS = ["facebook.com", "fb.com"];
+
+const isTrustedFacebookOrigin = (origin) => {
+  try {
+    const parsed = new URL(origin);
+    return TRUSTED_FACEBOOK_HOSTS.some((host) =>
+      parsed.hostname === host || parsed.hostname.endsWith(`.${host}`)
+    );
+  } catch {
+    return false;
+  }
+};
 
 const loadFacebookSdk = () =>
   new Promise((resolve, reject) => {
@@ -37,6 +50,7 @@ const loadFacebookSdk = () =>
         appId: APP_ID,
         autoLogAppEvents: true,
         xfbml: true,
+        cookie: true,
         version: GRAPH_VERSION,
       });
       resolve(window.FB);
@@ -78,8 +92,15 @@ function mergeQuery(url, params) {
 }
 
 export default function WhatsAppConnect() {
-  const [status, setStatus] = useState("Loading WhatsApp Embedded Signup…");
-  const [error, setError] = useState(null);
+  const configMissing = !APP_ID || !CONFIG_ID;
+  const [status, setStatus] = useState(() =>
+    configMissing ? "Configuration error." : "Loading WhatsApp Embedded Signup…"
+  );
+  const [error, setError] = useState(() =>
+    configMissing
+      ? "WhatsApp configuration missing. Please set VITE_WHATSAPP_APP_ID and VITE_WHATSAPP_CONFIG_ID."
+      : null
+  );
   const [manualPayload, setManualPayload] = useState(null);
   const [sdkReady, setSdkReady] = useState(false);
   const codeRef = useRef(null);
@@ -97,9 +118,16 @@ export default function WhatsAppConnect() {
     FALLBACK_REDIRECT;
 
   const logDebug = (...args) => {
-    // eslint-disable-next-line no-console
     console.log("[WhatsAppConnect]", ...args);
   };
+
+  const schedule = useCallback((cb) => {
+    if (typeof queueMicrotask === "function") {
+      queueMicrotask(cb);
+    } else {
+      Promise.resolve().then(cb);
+    }
+  }, []);
 
   const finalizeSuccess = useCallback(() => {
     if (completedRef.current) return;
@@ -188,7 +216,10 @@ export default function WhatsAppConnect() {
 
   const handleMessageEvent = useCallback(
     (event) => {
-      if (!event.origin.endsWith("facebook.com")) return;
+      if (!isTrustedFacebookOrigin(event.origin)) {
+        logDebug("Ignoring message from", event.origin);
+        return;
+      }
       let payload = event.data;
       if (typeof payload === "string") {
         try {
@@ -246,20 +277,20 @@ export default function WhatsAppConnect() {
     completedRef.current = false;
     codeRef.current = null;
     resultRef.current = null;
+    const extras = { setup: {} };
+    if (SESSION_INFO_VERSION) {
+      extras.sessionInfoVersion = `${SESSION_INFO_VERSION}`;
+    }
     window.FB.login(fbLoginCallback, {
       config_id: CONFIG_ID,
       response_type: "code",
       override_default_response_type: true,
-      extras: { setup: {} },
+      extras,
     });
   }, [fbLoginCallback]);
 
   useEffect(() => {
-    if (!APP_ID || !CONFIG_ID) {
-      setError(
-        "WhatsApp configuration missing. Please set VITE_WHATSAPP_APP_ID and VITE_WHATSAPP_CONFIG_ID."
-      );
-      setStatus("Configuration error.");
+    if (configMissing) {
       return;
     }
     let cancelled = false;
@@ -278,15 +309,22 @@ export default function WhatsAppConnect() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [configMissing]);
 
   useEffect(() => {
-    if (sdkReady && stateParam && !completedRef.current) {
-      launchSignup();
-    } else if (sdkReady && !stateParam) {
-      setError("Missing onboarding state. Relaunch the connection from the app.");
+    if (configMissing || !sdkReady) {
+      return;
     }
-  }, [launchSignup, sdkReady, stateParam]);
+    if (stateParam && !completedRef.current) {
+      schedule(() => launchSignup());
+      return;
+    }
+    if (!stateParam) {
+      schedule(() =>
+        setError("Missing onboarding state. Relaunch the connection from the app.")
+      );
+    }
+  }, [configMissing, launchSignup, schedule, sdkReady, stateParam]);
 
   return (
     <main className="wa-wrapper">
