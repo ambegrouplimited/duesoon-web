@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import whatsappIcon from "../assets/icons/whatsapp.svg";
+import duesoonLogo from "../assets/duesoonLogoNoText.png";
 
 const APP_ID = import.meta.env.VITE_WHATSAPP_APP_ID;
 const CONFIG_ID = import.meta.env.VITE_WHATSAPP_CONFIG_ID;
 const GRAPH_VERSION = import.meta.env.VITE_WHATSAPP_GRAPH_VERSION ?? "v24.0";
-const SESSION_INFO_VERSION = import.meta.env.VITE_WHATSAPP_SESSION_VERSION ?? "3";
+const SESSION_INFO_VERSION =
+  import.meta.env.VITE_WHATSAPP_SESSION_VERSION ?? "3";
 const FALLBACK_REDIRECT = import.meta.env.VITE_WHATSAPP_FALLBACK_REDIRECT ?? "";
 const SDK_SRC = "https://connect.facebook.net/en_US/sdk.js";
 const FINISH_EVENTS = new Set([
@@ -29,7 +32,7 @@ const loadFacebookSdk = () =>
         }
       });
       existing.addEventListener("error", () =>
-        reject(new Error("Unable to load Facebook SDK."))
+        reject(new Error("Unable to load Facebook SDK.")),
       );
       return;
     }
@@ -81,13 +84,15 @@ function mergeQuery(url, params) {
 
 export default function WhatsAppConnect() {
   const configMissing = !APP_ID || !CONFIG_ID;
-  const [status, setStatus] = useState(() =>
-    configMissing ? "Configuration error." : "Loading WhatsApp Embedded Signup…"
+  const [statusMessage, setStatusMessage] = useState(() =>
+    configMissing
+      ? "Configuration error."
+      : "Loading WhatsApp Embedded Signup…",
   );
   const [error, setError] = useState(() =>
     configMissing
       ? "WhatsApp configuration missing. Please set VITE_WHATSAPP_APP_ID and VITE_WHATSAPP_CONFIG_ID."
-      : null
+      : null,
   );
   const [manualPayload, setManualPayload] = useState(null);
   const [sdkReady, setSdkReady] = useState(false);
@@ -97,7 +102,7 @@ export default function WhatsAppConnect() {
 
   const searchParams = useMemo(
     () => new URLSearchParams(window.location.search),
-    []
+    [],
   );
   const stateParam = searchParams.get("state") ?? "";
   const redirectUri =
@@ -105,20 +110,27 @@ export default function WhatsAppConnect() {
     searchParams.get("return_uri") ??
     FALLBACK_REDIRECT;
 
-const TRUSTED_FACEBOOK_HOSTS = ["facebook.com", "fb.com", "facebook.net", "fbcdn.net", "whatsapp.com"];
+  const TRUSTED_FACEBOOK_HOSTS = [
+    "facebook.com",
+    "fb.com",
+    "facebook.net",
+    "fbcdn.net",
+    "whatsapp.com",
+  ];
 
-const isTrustedFacebookOrigin = (origin) => {
-  try {
-    const parsed = new URL(origin);
-    return TRUSTED_FACEBOOK_HOSTS.some((host) =>
-      parsed.hostname === host || parsed.hostname.endsWith(`.${host}`)
-    );
-  } catch {
-    return false;
-  }
-};
+  const isTrustedFacebookOrigin = (origin) => {
+    try {
+      const parsed = new URL(origin);
+      return TRUSTED_FACEBOOK_HOSTS.some(
+        (host) =>
+          parsed.hostname === host || parsed.hostname.endsWith(`.${host}`),
+      );
+    } catch {
+      return false;
+    }
+  };
 
-const logDebug = (...args) => {
+  const logDebug = (...args) => {
     console.log("[WhatsAppConnect]", ...args);
   };
 
@@ -191,7 +203,7 @@ const logDebug = (...args) => {
         setManualPayload({ event: payload?.event ?? "CANCEL" });
       }
     },
-    [redirectUri, stateParam]
+    [redirectUri, stateParam],
   );
 
   const attemptFinalize = useCallback(() => {
@@ -211,7 +223,7 @@ const logDebug = (...args) => {
       return;
     }
     logDebug("Finalizing WhatsApp signup with payload", payload);
-    setStatus("Wrapping up…");
+    setStatusMessage("Wrapping up…");
     finalizeSuccess();
   }, [finalizeSuccess]);
 
@@ -235,16 +247,16 @@ const logDebug = (...args) => {
       logDebug("Received WA_EMBEDDED_SIGNUP event", payload);
       resultRef.current = payload;
       if (payload.event === "CANCEL" || payload.event === "ERROR") {
-        setStatus("WhatsApp signup was canceled.");
+        setStatusMessage("WhatsApp signup was canceled.");
         finalizeCancel(payload);
         return;
       }
       if (FINISH_EVENTS.has(payload.event)) {
-        setStatus("Received WhatsApp IDs. Waiting for Meta token…");
+        setStatusMessage("Received WhatsApp IDs. Waiting for Meta token…");
         attemptFinalize();
       }
     },
-    [attemptFinalize, finalizeCancel]
+    [attemptFinalize, finalizeCancel],
   );
 
   useEffect(() => {
@@ -257,15 +269,15 @@ const logDebug = (...args) => {
       if (response?.authResponse?.code) {
         logDebug("Received authResponse code");
         codeRef.current = response.authResponse.code;
-        setStatus("Received Meta authorization code.");
+        setStatusMessage("Received Meta authorization code.");
         attemptFinalize();
       } else if (!completedRef.current) {
         logDebug("authResponse missing code", response);
         setError("Facebook login failed or was canceled.");
-        setStatus("Unable to continue WhatsApp signup.");
+        setStatusMessage("Unable to continue WhatsApp signup.");
       }
     },
-    [attemptFinalize]
+    [attemptFinalize],
   );
 
   const launchSignup = useCallback(() => {
@@ -273,7 +285,7 @@ const logDebug = (...args) => {
       setError("Facebook SDK is not available.");
       return;
     }
-    setStatus("Opening WhatsApp Embedded Signup…");
+    setStatusMessage("Opening WhatsApp Embedded Signup…");
     setError(null);
     completedRef.current = false;
     codeRef.current = null;
@@ -304,7 +316,7 @@ const logDebug = (...args) => {
       .catch((err) => {
         if (!cancelled) {
           setError(err.message);
-          setStatus("Unable to load Facebook SDK.");
+          setStatusMessage("Unable to load Facebook SDK.");
         }
       });
     return () => {
@@ -322,27 +334,54 @@ const logDebug = (...args) => {
     }
     if (!stateParam) {
       schedule(() =>
-        setError("Missing onboarding state. Relaunch the connection from the app.")
+        setError(
+          "Missing onboarding state. Relaunch the connection from the app.",
+        ),
       );
     }
   }, [configMissing, launchSignup, schedule, sdkReady, stateParam]);
 
   return (
     <main className="wa-wrapper">
-      <section className="wa-card">
-        <h1>Connect WhatsApp</h1>
-        <p className="wa-status">{status}</p>
-        {error ? <p className="wa-error">{error}</p> : null}
-        <button className="wa-button" onClick={launchSignup} disabled={!sdkReady}>
-          {sdkReady ? "Relaunch WhatsApp Signup" : "Loading…"}
-        </button>
-        <p className="wa-note">
-          Keep this tab open until we redirect you back to the DueSoon app. If the
-          window closes unexpectedly, tap the button above to resume.
-        </p>
+      <section className="wa-card wa-card-minimal">
+        <div className="wa-minimal">
+          <p className="wa-overtitle">DueSoon · WhatsApp reminders</p>
+          <div className="wa-brand-cluster" aria-hidden="true">
+            <div className="wa-brand-badge">
+              <img src={duesoonLogo} alt="DueSoon" />
+            </div>
+            <div className="wa-dotted-arrow" />
+            <div className="wa-brand-badge wa-brand-badge--whatsapp">
+              <img src={whatsappIcon} alt="WhatsApp" />
+            </div>
+          </div>
+          <h1>Connect WhatsApp</h1>
+          <p className="wa-lede">
+            We'll open Meta's secure embedded signup in a new window. Follow the
+            prompts once to link your WhatsApp Business number to DueSoon.
+          </p>
+          <button
+            className="wa-button"
+            onClick={launchSignup}
+            disabled={!sdkReady}
+          >
+            {sdkReady ? "Open WhatsApp Signup" : "Preparing SDK…"}
+          </button>
+          {error ? <p className="wa-error wa-error-inline">{error}</p> : null}
+          <p className="wa-quiet-text">
+            Keep this tab open. We'll bring you back here automatically after
+            Meta finishes.
+          </p>
+          <p className="wa-visually-hidden" aria-live="polite">
+            {statusMessage}
+          </p>
+        </div>
         {manualPayload ? (
           <div className="wa-manual">
-            <h2>Manual data</h2>
+            <div className="wa-manual-header">
+              <h2>Manual data</h2>
+              <span>Copy &amp; send to support if asked</span>
+            </div>
             <pre>{JSON.stringify(manualPayload, null, 2)}</pre>
           </div>
         ) : null}
