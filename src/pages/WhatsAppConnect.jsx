@@ -105,7 +105,20 @@ export default function WhatsAppConnect() {
     searchParams.get("return_uri") ??
     FALLBACK_REDIRECT;
 
-  const logDebug = (...args) => {
+const TRUSTED_FACEBOOK_HOSTS = ["facebook.com", "fb.com", "facebook.net", "fbcdn.net", "whatsapp.com"];
+
+const isTrustedFacebookOrigin = (origin) => {
+  try {
+    const parsed = new URL(origin);
+    return TRUSTED_FACEBOOK_HOSTS.some((host) =>
+      parsed.hostname === host || parsed.hostname.endsWith(`.${host}`)
+    );
+  } catch {
+    return false;
+  }
+};
+
+const logDebug = (...args) => {
     console.log("[WhatsAppConnect]", ...args);
   };
 
@@ -204,7 +217,10 @@ export default function WhatsAppConnect() {
 
   const handleMessageEvent = useCallback(
     (event) => {
-      logDebug("message event from", event.origin);
+      if (!isTrustedFacebookOrigin(event.origin)) {
+        logDebug("Ignoring message from", event.origin);
+        return;
+      }
       let payload = event.data;
       if (typeof payload === "string") {
         try {
