@@ -20,6 +20,110 @@ function InfoRow({ label, value }) {
 
 function PaymentOptionCard({ option }) {
   const hasLink = Boolean(option.url);
+  const [copiedAll, setCopiedAll] = useState(false);
+  const [copiedFieldKey, setCopiedFieldKey] = useState(null);
+  const detailText = option.display_text?.trim() ?? "";
+
+  const parsed = useMemo(() => {
+    const entriesFromApi = Array.isArray(option.structured_fields)
+      ? option.structured_fields
+          .map((field) => {
+            const label = (field?.label ?? "").trim();
+            const value = (field?.value ?? "").trim();
+            if (!label || !value) return null;
+            return { label, value };
+          })
+          .filter(Boolean)
+      : [];
+    const notesFromApi = Array.isArray(option.structured_notes)
+      ? option.structured_notes.map((note) => (note ?? "").trim()).filter(Boolean)
+      : [];
+    if (entriesFromApi.length || notesFromApi.length) {
+      return { entries: entriesFromApi, notes: notesFromApi };
+    }
+    if (!detailText) {
+      return { entries: [], notes: [] };
+    }
+    const entries = [];
+    const notes = [];
+    detailText.split(/\n+/).forEach((rawLine) => {
+      const line = rawLine.trim();
+      if (!line) return;
+      const separators = [":", "：", " - ", " – ", " — ", "—", "–"];
+      let label = null;
+      let value = null;
+      for (const sep of separators) {
+        const idx = line.indexOf(sep);
+        if (idx > 0) {
+          label = line.slice(0, idx).trim();
+          value = line.slice(idx + sep.length).trim();
+          break;
+        }
+      }
+      if (label && value) {
+        entries.push({ label, value });
+      } else {
+        notes.push(line);
+      }
+    });
+    return { entries, notes };
+  }, [detailText]);
+
+  const copyToClipboard = async (text) => {
+    if (!text) return;
+    if (navigator?.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return;
+    }
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textarea);
+  };
+
+  const copySegments = [option.label];
+  if (parsed.entries.length) {
+    copySegments.push(
+      parsed.entries.map((entry) => `${entry.label}: ${entry.value}`).join("\n"),
+    );
+  }
+  if (parsed.notes.length) {
+    copySegments.push(parsed.notes.join("\n"));
+  }
+  if (!parsed.entries.length && !parsed.notes.length && detailText) {
+    copySegments.push(detailText);
+  }
+  const copyAllText = copySegments.filter(Boolean).join("\n\n");
+  const canCopyAll = Boolean(copyAllText);
+
+  const handleCopyAll = async () => {
+    if (!canCopyAll) return;
+    try {
+      await copyToClipboard(copyAllText);
+      setCopiedAll(true);
+      setTimeout(() => setCopiedAll(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy payment instructions", err);
+    }
+  };
+
+  const handleFieldCopy = async (value, key) => {
+    if (!value) return;
+    try {
+      await copyToClipboard(value);
+      setCopiedFieldKey(key);
+      setTimeout(() => setCopiedFieldKey(null), 2000);
+    } catch (err) {
+      console.error("Failed to copy payment detail", err);
+    }
+  };
+
+  const showStructuredDetails = parsed.entries.length > 0;
+
   return (
     <div className="rounded-2xl border border-slate-200 p-5 shadow-sm">
       <div className="flex items-center justify-between gap-2">
@@ -27,20 +131,66 @@ function PaymentOptionCard({ option }) {
           <p className="text-xs uppercase tracking-wide text-slate-500">
             {option.type?.replace(/_/g, " ") ?? "Payment option"}
           </p>
-          <h3 className="text-lg font-semibold text-slate-900">{option.label}</h3>
+          <h3 className="break-words text-lg font-semibold text-slate-900">{option.label}</h3>
         </div>
-        {hasLink ? (
-          <a
-            href={option.url}
-            target="_blank"
-            rel="noreferrer"
-            className="rounded-full border border-slate-300 px-4 py-1 text-sm font-medium text-slate-700 hover:border-slate-400 hover:text-slate-900"
-          >
-            Open link
-          </a>
-        ) : null}
+        <div className="flex flex-wrap items-center gap-2">
+          {canCopyAll ? (
+            <button
+              type="button"
+              onClick={handleCopyAll}
+              className="inline-flex items-center gap-1 rounded-full border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 transition hover:border-slate-400 hover:text-slate-900"
+            >
+              <span className="text-lg leading-none">{copiedAll ? "✓" : "⧉"}</span>
+              {copiedAll ? "Copied" : "Copy all"}
+            </button>
+          ) : null}
+          {hasLink ? (
+            <a
+              href={option.url}
+              target="_blank"
+              rel="noreferrer"
+              className="rounded-full border border-slate-300 px-4 py-1 text-sm font-medium text-slate-700 hover:border-slate-400 hover:text-slate-900"
+            >
+              Open link
+            </a>
+          ) : null}
+        </div>
       </div>
-      <p className="mt-4 text-sm text-slate-700">{option.display_text}</p>
+      {showStructuredDetails ? (
+        <div className="mt-5 space-y-3">
+          {parsed.entries.map((detail, index) => {
+            const key = `${option.label ?? "option"}-${detail.label}-${index}`;
+            return (
+              <div
+                key={key}
+                className="flex flex-col gap-3 rounded-2xl border border-slate-100 bg-slate-50/70 p-4 md:flex-row md:items-center md:justify-between"
+              >
+                <div className="space-y-1">
+                  <p className="text-xs uppercase tracking-wide text-slate-500">{detail.label}</p>
+                  <p className="break-all font-medium text-slate-900">{detail.value}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleFieldCopy(detail.value, key)}
+                  className="inline-flex items-center gap-1 self-start rounded-full border border-slate-300 px-3 py-1 text-xs font-medium text-slate-700 transition hover:border-slate-400 hover:text-slate-900 md:self-auto"
+                >
+                  <span className="text-lg leading-none">
+                    {copiedFieldKey === key ? "✓" : "⧉"}
+                  </span>
+                  {copiedFieldKey === key ? "Copied" : "Copy"}
+                </button>
+              </div>
+            );
+          })}
+          {parsed.notes.map((note, idx) => (
+            <p key={`${option.label}-note-${idx}`} className="break-words text-sm text-slate-600">
+              {note}
+            </p>
+          ))}
+        </div>
+      ) : (
+        <p className="mt-4 break-words text-sm text-slate-700">{option.display_text}</p>
+      )}
     </div>
   );
 }
