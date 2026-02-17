@@ -8,6 +8,9 @@ const GRAPH_VERSION = import.meta.env.VITE_WHATSAPP_GRAPH_VERSION ?? "v24.0";
 const SESSION_INFO_VERSION =
   import.meta.env.VITE_WHATSAPP_SESSION_VERSION ?? "3";
 const FALLBACK_REDIRECT = import.meta.env.VITE_WHATSAPP_FALLBACK_REDIRECT ?? "";
+const FEATURE_TYPE =
+  import.meta.env.VITE_WHATSAPP_FEATURE_TYPE ??
+  "whatsapp_business_app_onboarding";
 const SDK_SRC = "https://connect.facebook.net/en_US/sdk.js";
 const FINISH_EVENTS = new Set([
   "FINISH",
@@ -293,6 +296,9 @@ export default function WhatsAppConnect() {
     const extras = { setup: {} };
     if (SESSION_INFO_VERSION) {
       extras.sessionInfoVersion = `${SESSION_INFO_VERSION}`;
+    }
+    if (FEATURE_TYPE) {
+      extras.featureType = FEATURE_TYPE;
     }
     window.FB.login(fbLoginCallback, {
       config_id: CONFIG_ID,
